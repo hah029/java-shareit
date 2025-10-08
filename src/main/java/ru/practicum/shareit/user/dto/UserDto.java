@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.user.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -7,11 +7,10 @@ import lombok.Data;
  * TODO Sprint add-controllers.
  */
 @Data
-public class ItemDto {
+public class UserDto {
     private Long id;
-    private Long ownerId;
-
     private String name;
-    private String description;
-    private Boolean available;
+
+    @Email(message = "Please provide a valid email address.")
+    private String email;
 }
