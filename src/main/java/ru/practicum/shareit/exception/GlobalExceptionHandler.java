@@ -16,35 +16,35 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(final NotFoundException e) {
+    public ErrorResponse handleNotFound(NotFoundException e) {
         log.error("NotFoundException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(DatabaseUniqueConstraintException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateEmail(final DatabaseUniqueConstraintException e) {
+    public ErrorResponse handleDuplicateEmail(DatabaseUniqueConstraintException e) {
         log.error("DatabaseUniqueConstraintException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(final ValidationException e) {
+    public ErrorResponse handleValidation(ValidationException e) {
         log.error("ValidationException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleAccessDenied(final AccessDeniedException e) {
+    public ErrorResponse handleAccessDenied(AccessDeniedException e) {
         log.error("AccessDeniedException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentNotValid(final MethodArgumentNotValidException e) {
+    public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         String errorMessage = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
         log.error("MethodArgumentNotValidException: {}", errorMessage);
         return new ErrorResponse(errorMessage, LocalDateTime.now());
@@ -52,26 +52,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleOtherExceptions(final Exception e) {
+    public ErrorResponse handleOtherExceptions(Exception e) {
         log.error("Internal server error: ", e);
         return new ErrorResponse("Внутренняя ошибка сервера", LocalDateTime.now());
     }
 
-    private static class ErrorResponse {
-        private final String error;
-        private final LocalDateTime timestamp;
-
-        public ErrorResponse(String error, LocalDateTime timestamp) {
-            this.error = error;
-            this.timestamp = timestamp;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public LocalDateTime getTimestamp() {
-            return timestamp;
-        }
-    }
 }
