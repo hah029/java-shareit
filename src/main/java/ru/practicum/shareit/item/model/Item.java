@@ -3,10 +3,6 @@ package ru.practicum.shareit.item.model;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Data
 public class Item {
     private Long id;

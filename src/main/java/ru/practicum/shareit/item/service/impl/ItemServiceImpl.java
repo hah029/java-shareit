@@ -30,6 +30,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(@Valid ItemCreateDto itemData, long userId) {
         if (!userDao.exists(userId)) {
+            log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
 
@@ -42,12 +43,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(@Valid ItemDto itemData, long itemId, long userId) {
         if (!userDao.exists(userId)) {
+            log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
         if (!dao.exists(itemId)) {
+            log.error("Предмет с id={} не найден", itemId);
             throw new NotFoundException(String.format("Предмет с id=%s не найден", itemId));
         }
         if (!dao.isOwnership(itemId, userId)) {
+            log.error("Пользователь с id={} не является владельцем вещи с id={}", userId, itemId);
             throw new AccessDeniedException(String.format(
                     "Пользователь с id=%s не является владельцем вещи с id=%s", userId, itemId));
         }
@@ -57,13 +61,13 @@ public class ItemServiceImpl implements ItemService {
 
         itemToUpdate.setId(existedItem.getId());
 
-        if (itemToUpdate.getName() == null) {
+        if (itemToUpdate.getName() == null || itemToUpdate.getName().isBlank()) {
             itemToUpdate.setName(existedItem.getName());
         }
         if (itemToUpdate.getOwner() == null) {
             itemToUpdate.setOwner(existedItem.getOwner());
         }
-        if (itemToUpdate.getDescription() == null) {
+        if (itemToUpdate.getDescription() == null || itemToUpdate.getDescription().isBlank()) {
             itemToUpdate.setDescription(existedItem.getDescription());
         }
         if (itemToUpdate.getIsAvailable() == null) {
@@ -74,8 +78,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> list(long userId) {
+    public List<ItemDto> getList(long userId) {
         if (!userDao.exists(userId)) {
+            log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
 
@@ -87,6 +92,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto retrieve(long itemId, long userId) {
         if (!dao.exists(itemId)) {
+            log.error("Предмет с id={} не найден", itemId);
             throw new NotFoundException(String.format("Предмет с id=%s не найден", itemId));
         }
 

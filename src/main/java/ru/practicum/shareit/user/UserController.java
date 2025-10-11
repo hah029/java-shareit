@@ -10,9 +10,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
@@ -34,9 +31,9 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> list() {
+    public List<UserDto> getList() {
         log.info("GET /users");
-        return service.list();
+        return service.getList();
     }
 
     @GetMapping("/{userId}")

@@ -1,11 +1,13 @@
 package ru.practicum.shareit.user.dao;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+@UtilityClass
 public class UserMapper {
-    public static UserDto toUserDto(User user) {
+    public UserDto toUserDto(User user) {
         UserDto userDto = new UserDto();
 
         userDto.setId(user.getId());
@@ -15,7 +17,7 @@ public class UserMapper {
         return userDto;
     }
 
-    public static User toUser(UserDto userDto) {
+    public User toUser(UserDto userDto) {
         User user = new User();
 
         user.setId(userDto.getId());
@@ -25,7 +27,7 @@ public class UserMapper {
         return user;
     }
 
-    public static User toUser(UserCreateDto userDto) {
+    public User toUser(UserCreateDto userDto) {
         User user = new User();
 
         user.setId(userDto.getId());

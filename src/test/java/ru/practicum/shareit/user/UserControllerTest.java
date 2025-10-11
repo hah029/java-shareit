@@ -119,7 +119,7 @@ class UserControllerTest {
         user2.setId(2L);
         user2.setName("Jane");
 
-        Mockito.when(userService.list()).thenReturn(List.of(user1, user2));
+        Mockito.when(userService.getList()).thenReturn(List.of(user1, user2));
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())

@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
         User newUser = UserMapper.toUser(userData);
 
         if (dao.isEmailExists(newUser.getEmail())) {
+            log.error("Указанная почта уже зарегистрирована в приложении");
             throw new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении");
         }
 
@@ -37,9 +38,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(@Valid UserDto userData, long userId) {
         if (!dao.exists(userId)) {
+            log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
         if (userData.getEmail() != null && dao.isEmailExists(userData.getEmail())) {
+            log.error("Указанная почта уже зарегистрирована в приложении");
             throw new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении");
         }
 
@@ -47,10 +50,10 @@ public class UserServiceImpl implements UserService {
         User existedUser = dao.getById(userId);
 
         userToUpdate.setId(existedUser.getId());
-        if (userToUpdate.getName() == null) {
+        if (userToUpdate.getName() == null || userToUpdate.getName().isBlank()) {
             userToUpdate.setName(existedUser.getName());
         }
-        if (userToUpdate.getEmail() == null) {
+        if (userToUpdate.getEmail() == null || userToUpdate.getEmail().isBlank()) {
             userToUpdate.setEmail(existedUser.getEmail());
         }
 
@@ -58,7 +61,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> list() {
+    public List<UserDto> getList() {
         return dao.getList().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -67,6 +70,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto retrieve(long userId) {
         if (!dao.exists(userId)) {
+            log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
 
@@ -76,6 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(long userId) {
         if (!dao.exists(userId)) {
+            log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
 

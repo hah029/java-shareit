@@ -1,16 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.*;
 import lombok.Data;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 public class ItemDto {
     private Long id;
     private Long ownerId;
-
     private String name;
     private String description;
     private Boolean available;

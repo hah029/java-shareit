@@ -130,7 +130,7 @@ class ItemControllerTest {
         item.setId(1L);
         item.setName("Item");
 
-        Mockito.when(itemService.list(1L)).thenReturn(List.of(item));
+        Mockito.when(itemService.getList(1L)).thenReturn(List.of(item));
 
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", "1"))
