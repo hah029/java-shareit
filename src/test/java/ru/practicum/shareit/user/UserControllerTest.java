@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,22 +35,43 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
+    private UserCreateDto validUserCreateDto;
+    private UserCreateDto invalidUserCreateDto;
+    private UserDto userDto;
+    private UserDto updatedUserDto;
+    private UserDto updateDto;
+
+    @BeforeEach
+    void init() {
+        // Инициализация тестовых данных
+        validUserCreateDto = new UserCreateDto();
+        validUserCreateDto.setName("John");
+        validUserCreateDto.setEmail("john@example.com");
+
+        invalidUserCreateDto = new UserCreateDto();
+        invalidUserCreateDto.setName("");
+
+        userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("John");
+        userDto.setEmail("john@example.com");
+
+        updatedUserDto = new UserDto();
+        updatedUserDto.setId(1L);
+        updatedUserDto.setName("UpdatedName");
+        updatedUserDto.setEmail("john@example.com");
+
+        updateDto = new UserDto();
+        updateDto.setName("UpdatedName");
+    }
+
     @Test
-    void createUser_ValidData_ReturnsUserDto() throws Exception {
-        UserCreateDto input = new UserCreateDto();
-        input.setName("John");
-        input.setEmail("john@example.com");
-
-        UserDto output = new UserDto();
-        output.setId(1L);
-        output.setName("John");
-        output.setEmail("john@example.com");
-
-        Mockito.when(userService.create(any(UserCreateDto.class))).thenReturn(output);
+    void createUserValidDataReturnsUserDto() throws Exception {
+        Mockito.when(userService.create(any(UserCreateDto.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                        .content(objectMapper.writeValueAsString(validUserCreateDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("John")))
@@ -57,27 +79,16 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_InvalidData_ReturnsBadRequest() throws Exception {
-        UserCreateDto invalidUser = new UserCreateDto();
-        invalidUser.setName("");
-
+    void createUserInvalidDataReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUser)))
+                        .content(objectMapper.writeValueAsString(invalidUserCreateDto)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void updateUser_ValidData_ReturnsUpdatedUser() throws Exception {
-        UserDto updateDto = new UserDto();
-        updateDto.setName("UpdatedName");
-
-        UserDto updatedUser = new UserDto();
-        updatedUser.setId(1L);
-        updatedUser.setName("UpdatedName");
-        updatedUser.setEmail("john@example.com");
-
-        Mockito.when(userService.update(any(UserDto.class), anyLong())).thenReturn(updatedUser);
+    void updateUserValidDataReturnsUpdatedUser() throws Exception {
+        Mockito.when(userService.update(any(UserDto.class), anyLong())).thenReturn(updatedUserDto);
 
         mockMvc.perform(patch("/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,12 +98,8 @@ class UserControllerTest {
     }
 
     @Test
-    void getUser_ExistingId_ReturnsUser() throws Exception {
-        UserDto user = new UserDto();
-        user.setId(1L);
-        user.setName("John");
-
-        Mockito.when(userService.retrieve(1L)).thenReturn(user);
+    void getUserExistingIdReturnsUser() throws Exception {
+        Mockito.when(userService.retrieve(1L)).thenReturn(userDto);
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
@@ -101,7 +108,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUser_NonExistingId_ReturnsNotFound() throws Exception {
+    void getUserNonExistingIdReturnsNotFound() throws Exception {
         Mockito.when(userService.retrieve(999L))
                 .thenThrow(new NotFoundException("Пользователь с id=999 не найден"));
 
@@ -110,16 +117,13 @@ class UserControllerTest {
     }
 
     @Test
-    void getAllUsers_ReturnsUserList() throws Exception {
-        UserDto user1 = new UserDto();
-        user1.setId(1L);
-        user1.setName("John");
-
+    void getAllUsersReturnsUserList() throws Exception {
         UserDto user2 = new UserDto();
         user2.setId(2L);
         user2.setName("Jane");
+        user2.setEmail("jane@example.com");
 
-        Mockito.when(userService.getList()).thenReturn(List.of(user1, user2));
+        Mockito.when(userService.getList()).thenReturn(List.of(userDto, user2));
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
@@ -131,7 +135,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_ExistingId_ReturnsOk() throws Exception {
+    void deleteUserExistingIdReturnsOk() throws Exception {
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isOk());
 
@@ -139,17 +143,13 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_DuplicateEmail_ReturnsConflict() throws Exception {
-        UserCreateDto input = new UserCreateDto();
-        input.setName("John");
-        input.setEmail("duplicate@example.com");
-
+    void createUserDuplicateEmailReturnsConflict() throws Exception {
         Mockito.when(userService.create(any(UserCreateDto.class)))
                 .thenThrow(new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении"));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                        .content(objectMapper.writeValueAsString(validUserCreateDto)))
                 .andExpect(status().isConflict());
     }
 }

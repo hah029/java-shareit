@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,25 +35,53 @@ class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
+    private ItemCreateDto validItemCreateDto;
+    private ItemCreateDto invalidItemCreateDto;
+    private ItemDto itemDto;
+    private ItemDto updatedItemDto;
+    private ItemDto updateItemDto;
+    private ItemDto searchItemDto;
+
+    @BeforeEach
+    void init() {
+        // Инициализация ItemCreateDto объектов
+        validItemCreateDto = new ItemCreateDto();
+        validItemCreateDto.setName("Item");
+        validItemCreateDto.setDescription("Description");
+        validItemCreateDto.setAvailable(true);
+
+        invalidItemCreateDto = new ItemCreateDto();
+        invalidItemCreateDto.setName("");
+
+        // Инициализация ItemDto объектов
+        itemDto = new ItemDto();
+        itemDto.setId(1L);
+        itemDto.setName("Item");
+        itemDto.setDescription("Description");
+        itemDto.setAvailable(true);
+
+        updatedItemDto = new ItemDto();
+        updatedItemDto.setId(1L);
+        updatedItemDto.setName("UpdatedItem");
+        updatedItemDto.setDescription("Description");
+        updatedItemDto.setAvailable(true);
+
+        updateItemDto = new ItemDto();
+        updateItemDto.setName("UpdatedItem");
+
+        searchItemDto = new ItemDto();
+        searchItemDto.setId(1L);
+        searchItemDto.setName("Item");
+    }
+
     @Test
-    void createItem_ValidData_ReturnsItemDto() throws Exception {
-        ItemCreateDto input = new ItemCreateDto();
-        input.setName("Item");
-        input.setDescription("Description");
-        input.setAvailable(true);
-
-        ItemDto output = new ItemDto();
-        output.setId(1L);
-        output.setName("Item");
-        output.setDescription("Description");
-        output.setAvailable(true);
-
-        Mockito.when(itemService.create(any(ItemCreateDto.class), anyLong())).thenReturn(output);
+    void createItemValidDataReturnsItemDto() throws Exception {
+        Mockito.when(itemService.create(any(ItemCreateDto.class), anyLong())).thenReturn(itemDto);
 
         mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", "1")
+                        .header(ItemController.OWNER_HEADER, "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                        .content(objectMapper.writeValueAsString(validItemCreateDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Item")))
@@ -61,115 +90,83 @@ class ItemControllerTest {
     }
 
     @Test
-    void createItem_MissingUserIdHeader_ReturnsInternalError() throws Exception {
-        ItemCreateDto input = new ItemCreateDto();
-        input.setName("Item");
-
+    void createItemMissingUserIdHeaderReturnsInternalError() throws Exception {
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                        .content(objectMapper.writeValueAsString(validItemCreateDto)))
                 .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void createItem_UserNotFound_ReturnsNotFound() throws Exception {
-        ItemCreateDto input = new ItemCreateDto();
-        input.setName("Item");
-        input.setDescription("Description");
-        input.setAvailable(true);
-
+    void createItemUserNotFoundReturnsNotFound() throws Exception {
         Mockito.when(itemService.create(any(ItemCreateDto.class), anyLong()))
                 .thenThrow(new NotFoundException("Пользователь с id=999 не найден"));
 
         mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", "999")
+                        .header(ItemController.OWNER_HEADER, "999")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                        .content(objectMapper.writeValueAsString(validItemCreateDto)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void updateItem_ValidData_ReturnsUpdatedItem() throws Exception {
-        ItemDto updateDto = new ItemDto();
-        updateDto.setName("UpdatedItem");
-
-        ItemDto updatedItem = new ItemDto();
-        updatedItem.setId(1L);
-        updatedItem.setName("UpdatedItem");
-        updatedItem.setDescription("Description");
-        updatedItem.setAvailable(true);
-
-        Mockito.when(itemService.update(any(ItemDto.class), anyLong(), anyLong())).thenReturn(updatedItem);
+    void updateItemValidDataReturnsUpdatedItem() throws Exception {
+        Mockito.when(itemService.update(any(ItemDto.class), anyLong(), anyLong())).thenReturn(updatedItemDto);
 
         mockMvc.perform(patch("/items/1")
-                        .header("X-Sharer-User-Id", "1")
+                        .header(ItemController.OWNER_HEADER, "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+                        .content(objectMapper.writeValueAsString(updateItemDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("UpdatedItem")));
     }
 
     @Test
-    void updateItem_AccessDenied_ReturnsForbidden() throws Exception {
-        ItemDto updateDto = new ItemDto();
-        updateDto.setName("UpdatedItem");
-
+    void updateItemAccessDeniedReturnsForbidden() throws Exception {
         Mockito.when(itemService.update(any(ItemDto.class), anyLong(), anyLong()))
                 .thenThrow(new AccessDeniedException("Доступ запрещен"));
 
         mockMvc.perform(patch("/items/1")
-                        .header("X-Sharer-User-Id", "2")
+                        .header(ItemController.OWNER_HEADER, "2")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+                        .content(objectMapper.writeValueAsString(updateItemDto)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void getItems_ValidUserId_ReturnsItemList() throws Exception {
-        ItemDto item = new ItemDto();
-        item.setId(1L);
-        item.setName("Item");
-
-        Mockito.when(itemService.getList(1L)).thenReturn(List.of(item));
+    void getItemsValidUserIdReturnsItemList() throws Exception {
+        Mockito.when(itemService.getList(1L)).thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", "1"))
+                        .header(ItemController.OWNER_HEADER, "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].name", is("Item")));
     }
 
     @Test
-    void getItem_ValidIds_ReturnsItem() throws Exception {
-        ItemDto item = new ItemDto();
-        item.setId(1L);
-        item.setName("Item");
-
-        Mockito.when(itemService.retrieve(1L, 1L)).thenReturn(item);
+    void getItemValidIdsReturnsItem() throws Exception {
+        Mockito.when(itemService.retrieve(1L, 1L)).thenReturn(itemDto);
 
         mockMvc.perform(get("/items/1")
-                        .header("X-Sharer-User-Id", "1"))
+                        .header(ItemController.OWNER_HEADER, "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)));
     }
 
     @Test
-    void getItem_ItemNotFound_ReturnsNotFound() throws Exception {
+    void getItemItemNotFoundReturnsNotFound() throws Exception {
         Mockito.when(itemService.retrieve(999L, 1L))
                 .thenThrow(new NotFoundException("Предмет с id=999 не найден"));
 
         mockMvc.perform(get("/items/999")
-                        .header("X-Sharer-User-Id", "1"))
+                        .header(ItemController.OWNER_HEADER, "1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void searchItems_ValidText_ReturnsItems() throws Exception {
-        ItemDto item = new ItemDto();
-        item.setId(1L);
-        item.setName("Item");
-
-        Mockito.when(itemService.search("test")).thenReturn(List.of(item));
+    void searchItemsValidTextReturnsItems() throws Exception {
+        Mockito.when(itemService.search("test")).thenReturn(List.of(searchItemDto));
 
         mockMvc.perform(get("/items/search")
                         .param("text", "test"))
@@ -178,7 +175,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void searchItems_EmptyText_ReturnsEmptyList() throws Exception {
+    void searchItemsEmptyTextReturnsEmptyList() throws Exception {
         Mockito.when(itemService.search("")).thenReturn(List.of());
 
         mockMvc.perform(get("/items/search")

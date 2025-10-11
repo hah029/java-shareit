@@ -20,17 +20,17 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService service;
-    private static final String ownerHeader = "X-Sharer-User-Id";
+    public static final String OWNER_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto create(@RequestHeader(ownerHeader) @NotNull Long userId,
+    public ItemDto create(@RequestHeader(OWNER_HEADER) @NotNull Long userId,
                           @Valid @RequestBody ItemCreateDto itemData) {
         log.info("POST /items -> {} | userid={}", itemData, userId);
         return service.create(itemData, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader(ownerHeader) @NotNull Long userId,
+    public ItemDto update(@RequestHeader(OWNER_HEADER) @NotNull Long userId,
                           @PathVariable long itemId,
                           @Valid @RequestBody ItemDto newItemData) {
         log.info("PATCH /items/{} -> {} | userid={}", itemId, newItemData, userId);
@@ -38,13 +38,13 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getList(@RequestHeader(ownerHeader) @NotNull Long userId) {
+    public List<ItemDto> getList(@RequestHeader(OWNER_HEADER) @NotNull Long userId) {
         log.info("GET /items | userid={}", userId);
         return service.getList(userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto retrieve(@RequestHeader(ownerHeader) @NotNull Long userId,
+    public ItemDto retrieve(@RequestHeader(OWNER_HEADER) @NotNull Long userId,
                          @PathVariable long itemId) {
         log.info("GET /items/{} | userid={}", itemId, userId);
         return service.retrieve(itemId, userId);
