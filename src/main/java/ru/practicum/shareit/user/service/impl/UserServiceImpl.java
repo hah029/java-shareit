@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DatabaseUniqueConstraintException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.user.dao.UserMapper;
+import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -21,33 +21,34 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserDao dao;
+    private final UserRepository repository;
 
     @Override
     public UserDto create(@Valid UserCreateDto userData) {
         User newUser = UserMapper.toUser(userData);
 
-        if (dao.isEmailExists(newUser.getEmail())) {
+        if (repository.existsByEmail(newUser.getEmail())) {
             log.error("Указанная почта уже зарегистрирована в приложении");
             throw new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении");
         }
 
-        return UserMapper.toUserDto(dao.create(newUser));
+        return UserMapper.toUserDto(repository.save(newUser));
     }
 
     @Override
     public UserDto update(@Valid UserDto userData, long userId) {
-        if (!dao.exists(userId)) {
+        if (!repository.existsById(userId)) {
             log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
-        if (userData.getEmail() != null && dao.isEmailExists(userData.getEmail())) {
+        if (userData.getEmail() != null && repository.existsByEmail(userData.getEmail())) {
             log.error("Указанная почта уже зарегистрирована в приложении");
             throw new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении");
         }
 
         User userToUpdate = UserMapper.toUser(userData);
-        User existedUser = dao.getById(userId);
+        User existedUser = repository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", userId)));
 
         userToUpdate.setId(existedUser.getId());
         if (userToUpdate.getName() == null || userToUpdate.getName().isBlank()) {
@@ -57,33 +58,32 @@ public class UserServiceImpl implements UserService {
             userToUpdate.setEmail(existedUser.getEmail());
         }
 
-        return UserMapper.toUserDto(dao.update(userToUpdate));
+        return UserMapper.toUserDto(repository.save(userToUpdate));
     }
 
     @Override
     public List<UserDto> getList() {
-        return dao.getList().stream()
+        return repository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto retrieve(long userId) {
-        if (!dao.exists(userId)) {
-            log.error("Пользователь с id={} не найден", userId);
-            throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
-        }
-
-        return UserMapper.toUserDto(dao.getById(userId));
+        return UserMapper.toUserDto(repository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("Пользователь с id={} не найден", userId);
+                    return new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
+                }));
     }
 
     @Override
     public void delete(long userId) {
-        if (!dao.exists(userId)) {
+        if (!repository.existsById(userId)) {
             log.error("Пользователь с id={} не найден", userId);
             throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         }
 
-        dao.removeById(userId);
+        repository.deleteById(userId);
     }
 }
