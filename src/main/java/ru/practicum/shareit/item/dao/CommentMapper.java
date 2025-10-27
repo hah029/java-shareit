@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.dao;
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.user.dto.UserDto;
 
 @UtilityClass
 public class CommentMapper {
