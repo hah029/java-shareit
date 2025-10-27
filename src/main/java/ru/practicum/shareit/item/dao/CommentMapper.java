@@ -14,11 +14,7 @@ public class CommentMapper {
         commentDto.setCreated(comment.getCreated());
 
         if (comment.getAuthor() != null) {
-            UserDto userDto = new UserDto();
-            userDto.setId(comment.getAuthor().getId());
-            userDto.setName(comment.getAuthor().getName());
-            userDto.setEmail(comment.getAuthor().getEmail());
-            commentDto.setAuthor(userDto);
+            commentDto.setAuthorName(comment.getAuthor().getName());
         }
 
         return commentDto;

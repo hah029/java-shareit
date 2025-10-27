@@ -63,22 +63,17 @@ public class ItemServiceImpl implements ItemService {
                     "Пользователь с id=%s не является владельцем вещи с id=%s", userId, itemId));
         }
 
-        itemToUpdate.setId(existedItem.getId());
-
-        if (itemToUpdate.getName() == null || itemToUpdate.getName().isBlank()) {
-            itemToUpdate.setName(existedItem.getName());
+        if (itemToUpdate.getName() != null && !itemToUpdate.getName().isBlank()) {
+            existedItem.setName(itemToUpdate.getName());
         }
-        if (itemToUpdate.getOwner() == null) {
-            itemToUpdate.setOwner(existedItem.getOwner());
+        if (itemToUpdate.getDescription() != null && !itemToUpdate.getDescription().isBlank()) {
+            existedItem.setDescription(itemToUpdate.getDescription());
         }
-        if (itemToUpdate.getDescription() == null || itemToUpdate.getDescription().isBlank()) {
-            itemToUpdate.setDescription(existedItem.getDescription());
-        }
-        if (itemToUpdate.getIsAvailable() == null) {
-            itemToUpdate.setIsAvailable(existedItem.getIsAvailable());
+        if (itemToUpdate.getIsAvailable() != null) {
+            existedItem.setIsAvailable(itemToUpdate.getIsAvailable());
         }
 
-        return ItemMapper.toItemDto(itemRepository.save(itemToUpdate));
+        return ItemMapper.toItemDto(itemRepository.save(existedItem));
     }
 
     @Override
@@ -123,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto retrieve(long itemId, long userId) {
-        Item item = itemRepository.findById(userId).orElseThrow(() -> {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             log.error("Предмет с id={} не найден", itemId);
             return new NotFoundException(String.format("Предмет с id=%s не найден", itemId));
         });
