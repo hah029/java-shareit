@@ -16,6 +16,8 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
+import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+
 @Slf4j
 @Validated
 @RestController
@@ -25,7 +27,6 @@ public class ItemController {
 
     private final ItemService service;
     private final CommentService commentService;
-    public static final String OWNER_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto create(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,

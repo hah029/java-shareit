@@ -27,6 +27,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+
 @WebMvcTest(ItemController.class)
 class ItemControllerTest {
 
@@ -106,7 +108,7 @@ class ItemControllerTest {
                 Mockito.when(itemService.create(any(ItemCreateDto.class), anyLong())).thenReturn(itemDto);
 
                 mockMvc.perform(post("/items")
-                                .header(ItemController.OWNER_HEADER, "1")
+                                .header(OWNER_HEADER, "1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validItemCreateDto)))
                                 .andExpect(status().isOk())
@@ -133,7 +135,7 @@ class ItemControllerTest {
                                 .thenThrow(new NotFoundException("Пользователь с id=999 не найден"));
 
                 mockMvc.perform(post("/items")
-                                .header(ItemController.OWNER_HEADER, "999")
+                                .header(OWNER_HEADER, "999")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validItemCreateDto)))
                                 .andExpect(status().isNotFound());
@@ -144,7 +146,7 @@ class ItemControllerTest {
                 Mockito.when(itemService.update(any(ItemDto.class), anyLong(), anyLong())).thenReturn(updatedItemDto);
 
                 mockMvc.perform(patch("/items/1")
-                                .header(ItemController.OWNER_HEADER, "1")
+                                .header(OWNER_HEADER, "1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateItemDto)))
                                 .andExpect(status().isOk())
@@ -160,7 +162,7 @@ class ItemControllerTest {
                                 .thenThrow(new AccessDeniedException("Доступ запрещен"));
 
                 mockMvc.perform(patch("/items/1")
-                                .header(ItemController.OWNER_HEADER, "2")
+                                .header(OWNER_HEADER, "2")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateItemDto)))
                                 .andExpect(status().isForbidden());
@@ -171,7 +173,7 @@ class ItemControllerTest {
                 Mockito.when(itemService.getList(1L)).thenReturn(List.of(itemDto));
 
                 mockMvc.perform(get("/items")
-                                .header(ItemController.OWNER_HEADER, "1"))
+                                .header(OWNER_HEADER, "1"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].id", is(1)))
                                 .andExpect(jsonPath("$[0].name", is("Item")))
@@ -185,7 +187,7 @@ class ItemControllerTest {
                 Mockito.when(itemService.retrieve(1L, 1L)).thenReturn(itemDto);
 
                 mockMvc.perform(get("/items/1")
-                                .header(ItemController.OWNER_HEADER, "1"))
+                                .header(OWNER_HEADER, "1"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id", is(1)))
                                 .andExpect(jsonPath("$.lastBooking").exists())
@@ -199,7 +201,7 @@ class ItemControllerTest {
                                 .thenThrow(new NotFoundException("Предмет с id=999 не найден"));
 
                 mockMvc.perform(get("/items/999")
-                                .header(ItemController.OWNER_HEADER, "1"))
+                                .header(OWNER_HEADER, "1"))
                                 .andExpect(status().isNotFound());
         }
 
@@ -236,7 +238,7 @@ class ItemControllerTest {
                                 .thenReturn(commentDto);
 
                 mockMvc.perform(post("/items/1/comment")
-                                .header(ItemController.OWNER_HEADER, "1")
+                                .header(OWNER_HEADER, "1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(commentCreateDto)))
                                 .andExpect(status().isOk())
@@ -251,7 +253,7 @@ class ItemControllerTest {
                                 .thenThrow(new NotFoundException("Пользователь с id=999 не найден"));
 
                 mockMvc.perform(post("/items/1/comment")
-                                .header(ItemController.OWNER_HEADER, "999")
+                                .header(OWNER_HEADER, "999")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(commentCreateDto)))
                                 .andExpect(status().isNotFound());
@@ -263,7 +265,7 @@ class ItemControllerTest {
                                 .thenThrow(new NotFoundException("Вещь с id=999 не найдена"));
 
                 mockMvc.perform(post("/items/999/comment")
-                                .header(ItemController.OWNER_HEADER, "1")
+                                .header(OWNER_HEADER, "1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(commentCreateDto)))
                                 .andExpect(status().isNotFound());

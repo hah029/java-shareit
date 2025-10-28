@@ -14,6 +14,8 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
 
+import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+
 @Slf4j
 @Validated
 @RestController
@@ -24,14 +26,14 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingDto create(@RequestHeader("X-Sharer-User-Id") @NotNull @Positive Long userId,
+    public BookingDto create(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @Valid @RequestBody BookingCreateDto bookingCreateDto) {
         log.info("Получен запрос на создание бронирования от пользователя с id={}", userId);
         return bookingService.create(userId, bookingCreateDto);
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto approve(@RequestHeader("X-Sharer-User-Id") @NotNull @Positive Long userId,
+    public BookingDto approve(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @PathVariable @NotNull @Positive Long bookingId,
             @RequestParam @NotNull Boolean approved) {
         log.info("Получен запрос на подтверждение бронирования с id={} от пользователя с id={}", bookingId, userId);
@@ -39,14 +41,14 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto get(@RequestHeader("X-Sharer-User-Id") @NotNull @Positive Long userId,
+    public BookingDto get(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @PathVariable @NotNull @Positive Long bookingId) {
         log.info("Получен запрос на получение бронирования с id={} от пользователя с id={}", bookingId, userId);
         return bookingService.get(userId, bookingId);
     }
 
     @GetMapping
-    public List<BookingDto> getAllByUser(@RequestHeader("X-Sharer-User-Id") @NotNull @Positive Long userId,
+    public List<BookingDto> getAllByUser(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @RequestParam(defaultValue = "ALL") String state,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
@@ -56,7 +58,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") @NotNull @Positive Long userId,
+    public List<BookingDto> getAllByOwner(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @RequestParam(defaultValue = "ALL") String state,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
