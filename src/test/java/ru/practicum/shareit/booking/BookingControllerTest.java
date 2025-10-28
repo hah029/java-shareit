@@ -27,6 +27,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+
 @WebMvcTest(BookingController.class)
 class BookingControllerTest {
 
@@ -92,7 +94,7 @@ class BookingControllerTest {
                 Mockito.when(bookingService.create(anyLong(), any(BookingCreateDto.class))).thenReturn(bookingDto);
 
                 mockMvc.perform(post("/bookings")
-                                .header("X-Sharer-User-Id", "2")
+                                .header(OWNER_HEADER, "2")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validBookingCreateDto)))
                                 .andExpect(status().isOk())
@@ -120,7 +122,7 @@ class BookingControllerTest {
                 invalidBookingCreateDto.setItemId(1L);
 
                 mockMvc.perform(post("/bookings")
-                                .header("X-Sharer-User-Id", "2")
+                                .header(OWNER_HEADER, "2")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidBookingCreateDto)))
                                 .andExpect(status().isBadRequest());
@@ -132,7 +134,7 @@ class BookingControllerTest {
                                 .thenThrow(new NotFoundException("Вещь с id=999 не найдена"));
 
                 mockMvc.perform(post("/bookings")
-                                .header("X-Sharer-User-Id", "2")
+                                .header(OWNER_HEADER, "2")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validBookingCreateDto)))
                                 .andExpect(status().isNotFound());
@@ -143,7 +145,7 @@ class BookingControllerTest {
                 Mockito.when(bookingService.approve(anyLong(), anyLong(), anyBoolean())).thenReturn(approvedBookingDto);
 
                 mockMvc.perform(patch("/bookings/1")
-                                .header("X-Sharer-User-Id", "1")
+                                .header(OWNER_HEADER, "1")
                                 .param("approved", "true"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.status", is("APPROVED")));
@@ -162,7 +164,7 @@ class BookingControllerTest {
                                 .thenThrow(new AccessDeniedException("Пользователь не является владельцем вещи"));
 
                 mockMvc.perform(patch("/bookings/1")
-                                .header("X-Sharer-User-Id", "2")
+                                .header(OWNER_HEADER, "2")
                                 .param("approved", "true"))
                                 .andExpect(status().isForbidden());
         }
@@ -173,7 +175,7 @@ class BookingControllerTest {
                                 .thenThrow(new NotFoundException("Бронирование с id=999 не найдено"));
 
                 mockMvc.perform(patch("/bookings/999")
-                                .header("X-Sharer-User-Id", "1")
+                                .header(OWNER_HEADER, "1")
                                 .param("approved", "true"))
                                 .andExpect(status().isNotFound());
         }
@@ -183,7 +185,7 @@ class BookingControllerTest {
                 Mockito.when(bookingService.get(anyLong(), anyLong())).thenReturn(bookingDto);
 
                 mockMvc.perform(get("/bookings/1")
-                                .header("X-Sharer-User-Id", "1"))
+                                .header(OWNER_HEADER, "1"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id", is(1)))
                                 .andExpect(jsonPath("$.item.id", is(1)))
@@ -203,7 +205,7 @@ class BookingControllerTest {
                                 .thenThrow(new NotFoundException("Бронирование с id=999 не найдено"));
 
                 mockMvc.perform(get("/bookings/999")
-                                .header("X-Sharer-User-Id", "1"))
+                                .header(OWNER_HEADER, "1"))
                                 .andExpect(status().isNotFound());
         }
 
@@ -213,7 +215,7 @@ class BookingControllerTest {
                                 .thenReturn(List.of(bookingDto));
 
                 mockMvc.perform(get("/bookings")
-                                .header("X-Sharer-User-Id", "2")
+                                .header(OWNER_HEADER, "2")
                                 .param("state", "ALL"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()", is(1)))
@@ -234,7 +236,7 @@ class BookingControllerTest {
                                 .thenThrow(new ValidationException("Unknown state: INVALID_STATE"));
 
                 mockMvc.perform(get("/bookings")
-                                .header("X-Sharer-User-Id", "2")
+                                .header(OWNER_HEADER, "2")
                                 .param("state", "INVALID_STATE"))
                                 .andExpect(status().isBadRequest());
         }
@@ -245,7 +247,7 @@ class BookingControllerTest {
                                 .thenReturn(List.of(bookingDto));
 
                 mockMvc.perform(get("/bookings/owner")
-                                .header("X-Sharer-User-Id", "1")
+                                .header(OWNER_HEADER, "1")
                                 .param("state", "ALL"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()", is(1)))
@@ -266,7 +268,7 @@ class BookingControllerTest {
                                 .thenThrow(new ValidationException("Unknown state: INVALID_STATE"));
 
                 mockMvc.perform(get("/bookings/owner")
-                                .header("X-Sharer-User-Id", "1")
+                                .header(OWNER_HEADER, "1")
                                 .param("state", "INVALID_STATE"))
                                 .andExpect(status().isBadRequest());
         }
