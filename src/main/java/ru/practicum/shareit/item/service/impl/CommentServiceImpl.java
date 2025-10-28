@@ -39,8 +39,8 @@ public class CommentServiceImpl implements CommentService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена"));
 
-        // Проверяем, что пользователь брал вещь в аренду и срок аренды закончился
-        List<Long> bookingIds = bookingRepository.findByBookerIdAndItemIdAndEndIsBeforeAndStatusIs(
+        // Проверяем, что пользователь брал вещь в аренду и срок аренды начался
+        List<Long> bookingIds = bookingRepository.findByBookerIdAndItemIdAndStartIsBeforeAndStatusIs(
                 userId, itemId, LocalDateTime.now(), Status.APPROVED);
 
         if (bookingIds.isEmpty()) {
