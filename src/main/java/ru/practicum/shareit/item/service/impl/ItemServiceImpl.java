@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.dao.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -36,6 +38,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    @Transactional
     public ItemDto create(@Valid ItemCreateDto itemData, long userId) {
         User owner = userRepository.findById(userId).orElseThrow(() -> {
             log.error("Пользователь с id={} не найден", userId);
@@ -47,6 +50,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto update(@Valid ItemDto itemData, long itemId, long userId) {
         Item itemToUpdate = ItemMapper.toItem(itemData);
         Item existedItem = itemRepository.findById(itemId).orElseThrow(() -> {
@@ -73,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
             existedItem.setIsAvailable(itemToUpdate.getIsAvailable());
         }
 
-        return ItemMapper.toItemDto(itemRepository.save(existedItem));
+        return ItemMapper.toItemDto(existedItem);
     }
 
     @Override

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DatabaseUniqueConstraintException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dao.UserMapper;
@@ -19,11 +20,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
 
     @Override
+    @Transactional
     public UserDto create(@Valid UserCreateDto userData) {
         User newUser = UserMapper.toUser(userData);
 
@@ -36,29 +39,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto update(@Valid UserDto userData, long userId) {
-        if (!repository.existsById(userId)) {
-            log.error("Пользователь с id={} не найден", userId);
-            throw new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
-        }
-        if (userData.getEmail() != null && repository.existsByEmail(userData.getEmail())) {
+        User existedUser = repository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("Пользователь с id={} не найден", userId);
+                    return new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
+                });
+
+        if (userData.getEmail() != null &&
+                !userData.getEmail().equals(existedUser.getEmail()) &&
+                repository.existsByEmail(userData.getEmail())) {
             log.error("Указанная почта уже зарегистрирована в приложении");
             throw new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении");
         }
 
-        User userToUpdate = UserMapper.toUser(userData);
-        User existedUser = repository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", userId)));
-
-        userToUpdate.setId(existedUser.getId());
-        if (userToUpdate.getName() == null || userToUpdate.getName().isBlank()) {
-            userToUpdate.setName(existedUser.getName());
+        if (userData.getName() != null && !userData.getName().isBlank()) {
+            existedUser.setName(userData.getName());
         }
-        if (userToUpdate.getEmail() == null || userToUpdate.getEmail().isBlank()) {
-            userToUpdate.setEmail(existedUser.getEmail());
+        if (userData.getEmail() != null && !userData.getEmail().isBlank()) {
+            existedUser.setEmail(userData.getEmail());
         }
 
-        return UserMapper.toUserDto(repository.save(userToUpdate));
+        return UserMapper.toUserDto(existedUser);
     }
 
     @Override
@@ -78,6 +81,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(long userId) {
         if (!repository.existsById(userId)) {
             log.error("Пользователь с id={} не найден", userId);
