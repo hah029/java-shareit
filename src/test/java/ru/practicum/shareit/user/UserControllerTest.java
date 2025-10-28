@@ -72,7 +72,7 @@ class UserControllerTest {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validUserCreateDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("John")))
                 .andExpect(jsonPath("$.email", is("john@example.com")));
@@ -135,9 +135,9 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUserExistingIdReturnsOk() throws Exception {
+    void deleteUserExistingIdReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/users/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(userService).delete(1L);
     }

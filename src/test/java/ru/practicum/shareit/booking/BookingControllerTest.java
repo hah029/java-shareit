@@ -97,7 +97,7 @@ class BookingControllerTest {
                                 .header(OWNER_HEADER, "2")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validBookingCreateDto)))
-                                .andExpect(status().isOk())
+                                .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.id", is(1)))
                                 .andExpect(jsonPath("$.start").exists())
                                 .andExpect(jsonPath("$.end").exists())

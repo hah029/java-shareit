@@ -111,7 +111,7 @@ class ItemControllerTest {
                                 .header(OWNER_HEADER, "1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validItemCreateDto)))
-                                .andExpect(status().isOk())
+                                .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.id", is(1)))
                                 .andExpect(jsonPath("$.name", is("Item")))
                                 .andExpect(jsonPath("$.description", is("Description")))
