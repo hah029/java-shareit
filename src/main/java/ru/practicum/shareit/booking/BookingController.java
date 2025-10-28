@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
@@ -26,6 +27,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public BookingDto create(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @Valid @RequestBody BookingCreateDto bookingCreateDto) {
         log.info("Получен запрос на создание бронирования от пользователя с id={}", userId);
@@ -33,6 +35,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
+    @ResponseStatus(HttpStatus.OK)
     public BookingDto approve(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @PathVariable @NotNull @Positive Long bookingId,
             @RequestParam @NotNull Boolean approved) {
@@ -41,6 +44,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
+    @ResponseStatus(HttpStatus.OK)
     public BookingDto get(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @PathVariable @NotNull @Positive Long bookingId) {
         log.info("Получен запрос на получение бронирования с id={} от пользователя с id={}", bookingId, userId);
@@ -48,6 +52,7 @@ public class BookingController {
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> getAllByUser(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @RequestParam(defaultValue = "ALL") String state,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
@@ -58,6 +63,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
+    @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> getAllByOwner(@RequestHeader(OWNER_HEADER) @NotNull @Positive Long userId,
             @RequestParam(defaultValue = "ALL") String state,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
