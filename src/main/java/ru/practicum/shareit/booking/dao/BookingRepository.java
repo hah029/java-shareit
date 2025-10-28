@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.dao;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 
@@ -33,13 +34,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
         List<Booking> findByItemIdInAndStatusIs(List<Long> itemIds, Status status, Sort sort);
 
-        @Query("select b from Booking b where b.item.id = ?1 and b.start < ?2 and b.status = 'APPROVED' order by b.end desc")
-        List<Booking> findLastBookingByItemId(Long itemId, LocalDateTime time);
+        @Query("select b from Booking b where b.item.id = :itemId and b.start < :time and b.status = 'APPROVED' order by b.end desc")
+        List<Booking> findLastBookingByItemId(@Param("itemId") Long itemId, @Param("time") LocalDateTime time);
 
-        @Query("select b from Booking b where b.item.id = ?1 and b.start > ?2 and b.status = 'APPROVED' order by b.start")
-        List<Booking> findNextBookingByItemId(Long itemId, LocalDateTime time);
+        @Query("select b from Booking b where b.item.id = :itemId and b.start > :time and b.status = 'APPROVED' order by b.start")
+        List<Booking> findNextBookingByItemId(@Param("itemId") Long itemId, @Param("time") LocalDateTime time);
 
-        @Query("select b.id from Booking b where b.booker.id = ?1 and b.item.id = ?2 and b.end < ?3 and b.status = 'APPROVED'")
-        List<Long> findByBookerIdAndItemIdAndEndIsBeforeAndStatusIs(Long bookerId, Long itemId, LocalDateTime end,
-                        Status status);
+        @Query("select b.id from Booking b where b.booker.id = :bookerId and b.item.id = :itemId and b.end < :end and b.status = :status")
+        List<Long> findByBookerIdAndItemIdAndEndIsBeforeAndStatusIs(@Param("bookerId") Long bookerId, @Param("itemId") Long itemId, @Param("end") LocalDateTime end,
+                        @Param("status") Status status);
 }
