@@ -97,14 +97,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllByUser(Long userId, String state, Integer from, Integer size) {
-        if (from == null) {
-            from = 0;
-        }
-
-        if (size == null) {
-            size = 10;
-        }
-
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
@@ -150,14 +142,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllByOwner(Long userId, String state, Integer from, Integer size) {
-        if (from == null) {
-            from = 0;
-        }
-
-        if (size == null) {
-            size = 10;
-        }
-
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 

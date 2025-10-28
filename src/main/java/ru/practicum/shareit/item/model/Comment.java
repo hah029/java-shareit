@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
@@ -17,6 +19,7 @@ public class Comment {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String text;
 
     @ManyToOne
@@ -28,5 +31,6 @@ public class Comment {
     private User author;
 
     @Column(nullable = false)
+    @NotNull
     private LocalDateTime created;
 }

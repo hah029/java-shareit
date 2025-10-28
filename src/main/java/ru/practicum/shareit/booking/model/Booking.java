@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.booking.dao.Status;
@@ -19,13 +20,16 @@ public class Booking {
     private Long id;
 
     @Column(name = "start_date", nullable = false)
+    @NotNull
     private LocalDateTime start;
 
     @Column(name = "end_date", nullable = false)
+    @NotNull
     private LocalDateTime end;
 
     @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
+    @NotNull
     private Item item;
 
     @ManyToOne
