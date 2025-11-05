@@ -21,11 +21,11 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column(nullable = false)
+    @Column
     @NotBlank
     private String name;
 
-    @Column(nullable = false)
+    @Column
     @NotBlank
     private String description;
 

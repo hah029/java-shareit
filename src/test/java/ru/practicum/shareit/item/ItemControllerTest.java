@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+import static ru.practicum.shareit.Constant.OWNER_HEADER;
 
 @WebMvcTest(ItemController.class)
 class ItemControllerTest {

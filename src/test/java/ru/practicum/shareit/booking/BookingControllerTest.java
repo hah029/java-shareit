@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+import static ru.practicum.shareit.Constant.OWNER_HEADER;
 
 @WebMvcTest(BookingController.class)
 class BookingControllerTest {

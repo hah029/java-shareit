@@ -17,7 +17,8 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
+    @NotNull
     private String text;
 
     @ManyToOne
@@ -28,7 +29,7 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @Column(nullable = false)
+    @Column
     @NotNull
     private LocalDateTime created;
 }

@@ -15,7 +15,7 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
 
-import static ru.practicum.shareit.ShareItApp.OWNER_HEADER;
+import static ru.practicum.shareit.Constant.OWNER_HEADER;
 
 @Slf4j
 @Validated
