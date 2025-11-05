@@ -31,6 +31,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
+    private final ItemRequestMapper itemRequestMapper;
 
     @Override
     @Transactional
@@ -40,11 +41,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             return new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         });
 
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(requestData);
+        ItemRequest itemRequest = itemRequestMapper.toItemRequest(requestData);
         itemRequest.setAuthor(author);
         itemRequest.setCreated(LocalDateTime.now());
 
-        return ItemRequestMapper.toItemRequestDto(itemRequestRepository.save(itemRequest));
+        return itemRequestMapper.toItemRequestDto(itemRequestRepository.save(itemRequest));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         return itemRequests.stream()
                 .map(itemRequest -> {
-                    ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
+                    ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
 
                     List<Item> items = itemRepository.findByRequestId(itemRequestDto.getId());
                     itemRequestDto.setItems(items.stream()
@@ -75,7 +76,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         return itemRequests.stream()
                 .map(itemRequest -> {
-                    ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
+                    ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
 
                     List<Item> items = itemRepository.findByRequestId(itemRequestDto.getId());
                     itemRequestDto.setItems(items.stream()
@@ -92,7 +93,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             log.error("Запрос с id={} не найден", requestId);
             return new NotFoundException(String.format("Запрос с id=%s не найден", requestId));
         });
-        ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
+        ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
 
         List<Item> items = itemRepository.findByRequestId(itemRequestDto.getId());
         itemRequestDto.setItems(items.stream()
