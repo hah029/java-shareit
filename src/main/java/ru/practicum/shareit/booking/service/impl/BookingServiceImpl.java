@@ -32,6 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
@@ -61,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(booker);
         booking.setStatus(Status.WAITING);
 
-        return BookingMapper.toBookingDto(bookingRepository.save(booking));
+        return bookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -79,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setStatus(approved ? Status.APPROVED : Status.REJECTED);
-        return BookingMapper.toBookingDto(booking);
+        return bookingMapper.toBookingDto(booking);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
                     "Просматривать бронирование может только автор бронирования или владелец вещи");
         }
 
-        return BookingMapper.toBookingDto(booking);
+        return bookingMapper.toBookingDto(booking);
     }
 
     @Override
@@ -136,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookings.subList(startIndex, endIndex).stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -189,7 +190,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookings.subList(startIndex, endIndex).stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 }
