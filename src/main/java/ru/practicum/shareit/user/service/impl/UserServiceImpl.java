@@ -24,18 +24,19 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final UserMapper mapper;
 
     @Override
     @Transactional
     public UserDto create(@Valid UserCreateDto userData) {
-        User newUser = UserMapper.toUser(userData);
+        User newUser = mapper.toUser(userData);
 
         if (repository.existsByEmail(newUser.getEmail())) {
             log.error("Указанная почта уже зарегистрирована в приложении");
             throw new DatabaseUniqueConstraintException("Указанная почта уже зарегистрирована в приложении");
         }
 
-        return UserMapper.toUserDto(repository.save(newUser));
+        return mapper.toUserDto(repository.save(newUser));
     }
 
     @Override
@@ -61,19 +62,19 @@ public class UserServiceImpl implements UserService {
             existedUser.setEmail(userData.getEmail());
         }
 
-        return UserMapper.toUserDto(existedUser);
+        return mapper.toUserDto(existedUser);
     }
 
     @Override
     public List<UserDto> getList() {
         return repository.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(mapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto retrieve(long userId) {
-        return UserMapper.toUserDto(repository.findById(userId)
+        return mapper.toUserDto(repository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("Пользователь с id={} не найден", userId);
                     return new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
