@@ -39,6 +39,8 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final ItemRequestRepository itemRequestRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
@@ -47,7 +49,7 @@ public class ItemServiceImpl implements ItemService {
             log.error("Пользователь с id={} не найден", userId);
             return new NotFoundException(String.format("Пользователь с id=%s не найден", userId));
         });
-        Item item = ItemMapper.toItem(itemData);
+        Item item = itemMapper.toItem(itemData);
         item.setOwner(owner);
 
         if (itemData.getRequestId() != null) {
@@ -59,13 +61,13 @@ public class ItemServiceImpl implements ItemService {
             item.setRequest(request);
         }
 
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return itemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
     @Transactional
     public ItemDto update(@Valid ItemDto itemData, long itemId, long userId) {
-        Item itemToUpdate = ItemMapper.toItem(itemData);
+        Item itemToUpdate = itemMapper.toItem(itemData);
         Item existedItem = itemRepository.findById(itemId).orElseThrow(() -> {
             log.error("Предмет с id={} не найден", itemId);
             return new NotFoundException(String.format("Предмет с id=%s не найден", itemId));
@@ -90,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
             existedItem.setIsAvailable(itemToUpdate.getIsAvailable());
         }
 
-        return ItemMapper.toItemDto(existedItem);
+        return itemMapper.toItemDto(existedItem);
     }
 
     @Override
@@ -105,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
 
         return items.stream()
                 .map(item -> {
-                    ItemDto itemDto = ItemMapper.toItemDto(item);
+                    ItemDto itemDto = itemMapper.toItemDto(item);
 
                     // Если пользователь является владельцем вещи, добавляем даты бронирований
                     if (item.getOwner().getId() == userId) {
@@ -125,7 +127,7 @@ public class ItemServiceImpl implements ItemService {
                     // Добавляем комментарии
                     List<Comment> comments = commentRepository.findByItemIdOrderByCreatedDesc(item.getId());
                     itemDto.setComments(comments.stream()
-                            .map(CommentMapper::toCommentDto)
+                            .map(commentMapper::toCommentDto)
                             .collect(Collectors.toList()));
 
                     return itemDto;
@@ -139,7 +141,7 @@ public class ItemServiceImpl implements ItemService {
             log.error("Предмет с id={} не найден", itemId);
             return new NotFoundException(String.format("Предмет с id=%s не найден", itemId));
         });
-        ItemDto itemDto = ItemMapper.toItemDto(item);
+        ItemDto itemDto = itemMapper.toItemDto(item);
 
         // Если пользователь является владельцем вещи, добавляем даты бронирований
         if (item.getOwner().getId() == userId) {
@@ -161,7 +163,7 @@ public class ItemServiceImpl implements ItemService {
         // Добавляем комментарии
         List<Comment> comments = commentRepository.findByItemIdOrderByCreatedDesc(itemId);
         itemDto.setComments(comments.stream()
-                .map(CommentMapper::toCommentDto)
+                .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList()));
 
         return itemDto;
@@ -176,7 +178,7 @@ public class ItemServiceImpl implements ItemService {
         String formattedText = text.toLowerCase();
 
         return itemRepository.searchAvailableItems(formattedText).stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 }

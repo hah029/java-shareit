@@ -30,6 +30,7 @@ public class CommentServiceImpl implements CommentService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
@@ -53,6 +54,6 @@ public class CommentServiceImpl implements CommentService {
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
 
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 }

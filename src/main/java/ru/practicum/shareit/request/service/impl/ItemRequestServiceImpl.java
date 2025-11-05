@@ -30,6 +30,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
     @Override
     @Transactional
@@ -61,7 +62,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
                     List<Item> items = itemRepository.findByRequestId(itemRequestDto.getId());
                     itemRequestDto.setItems(items.stream()
-                            .map(ItemMapper::toItemDto)
+                            .map(itemMapper::toItemDto)
                             .collect(Collectors.toList()));
                     return itemRequestDto;
                 })
@@ -78,7 +79,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
                     List<Item> items = itemRepository.findByRequestId(itemRequestDto.getId());
                     itemRequestDto.setItems(items.stream()
-                            .map(ItemMapper::toItemDto)
+                            .map(itemMapper::toItemDto)
                             .collect(Collectors.toList()));
                     return itemRequestDto;
                 })
@@ -95,7 +96,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         List<Item> items = itemRepository.findByRequestId(itemRequestDto.getId());
         itemRequestDto.setItems(items.stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
         return itemRequestDto;
     }
