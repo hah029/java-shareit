@@ -10,6 +10,8 @@ public class ItemCreateDto {
 
     private Long ownerId;
 
+    private Long requestId;
+
     @NotBlank(message = "'name' is required")
     private String name;
 
