@@ -1,8 +1,6 @@
 package ru.practicum.shareit.request.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.item.model.Item;
@@ -21,7 +19,6 @@ public class ItemRequest {
     private Long id;
 
     @Column
-    @NotBlank
     private String description;
 
     @ManyToOne
@@ -29,7 +26,6 @@ public class ItemRequest {
     private User author;
 
     @Column
-    @NotNull
     private LocalDateTime created;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)

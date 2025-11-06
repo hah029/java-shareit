@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -27,11 +26,9 @@ public class Item {
     private ItemRequest request;
 
     @Column
-    @NotBlank
     private String name;
 
     @Column
-    @NotBlank
     private String description;
 
     @Column(name = "is_available")

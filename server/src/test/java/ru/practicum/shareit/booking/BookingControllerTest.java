@@ -115,20 +115,6 @@ class BookingControllerTest {
         }
 
         @Test
-        void createBookingInvalidDataReturnsBadRequest() throws Exception {
-                BookingCreateDto invalidBookingCreateDto = new BookingCreateDto();
-                invalidBookingCreateDto.setStart(LocalDateTime.now().minusDays(1)); // Прошедшее время
-                invalidBookingCreateDto.setEnd(LocalDateTime.now().plusDays(2));
-                invalidBookingCreateDto.setItemId(1L);
-
-                mockMvc.perform(post("/bookings")
-                                .header(OWNER_HEADER, "2")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(invalidBookingCreateDto)))
-                                .andExpect(status().isBadRequest());
-        }
-
-        @Test
         void createBookingItemNotFoundReturnsNotFound() throws Exception {
                 Mockito.when(bookingService.create(anyLong(), any(BookingCreateDto.class)))
                                 .thenThrow(new NotFoundException("Вещь с id=999 не найдена"));
