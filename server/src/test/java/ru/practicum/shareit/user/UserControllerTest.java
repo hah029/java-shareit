@@ -79,14 +79,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createUserInvalidDataReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUserCreateDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void updateUserValidDataReturnsUpdatedUser() throws Exception {
         Mockito.when(userService.update(any(UserDto.class), anyLong())).thenReturn(updatedUserDto);
 

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.service.impl;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto create(@Valid UserCreateDto userData) {
+    public UserDto create(UserCreateDto userData) {
         User newUser = mapper.toUser(userData);
 
         if (repository.existsByEmail(newUser.getEmail())) {
@@ -41,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto update(@Valid UserDto userData, long userId) {
+    public UserDto update(UserDto userData, long userId) {
         User existedUser = repository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("Пользователь с id={} не найден", userId);
