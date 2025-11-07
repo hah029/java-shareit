@@ -26,34 +26,36 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-    private final CommentRepository commentRepository;
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
-    private final BookingRepository bookingRepository;
-    private final CommentMapper commentMapper;
+        private final CommentRepository commentRepository;
+        private final ItemRepository itemRepository;
+        private final UserRepository userRepository;
+        private final BookingRepository bookingRepository;
+        private final CommentMapper commentMapper;
 
-    @Override
-    @Transactional
-    public CommentDto create(Long userId, Long itemId, CommentCreateDto commentCreateDto) {
-        User author = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена"));
+        @Override
+        @Transactional
+        public CommentDto create(Long userId, Long itemId, CommentCreateDto commentCreateDto) {
+                User author = userRepository.findById(userId)
+                                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+                Item item = itemRepository.findById(itemId)
+                                .orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена"));
 
-        // Проверяем, что пользователь брал вещь в аренду и срок аренды начался
-        List<Long> bookingIds = bookingRepository.findByBookerIdAndItemIdAndStartIsBeforeAndStatusIs(
-                userId, itemId, LocalDateTime.now(), Status.APPROVED);
+                // Проверяем, что пользователь брал вещь в аренду с подтвержденным статусом и
+                // время бронирования уже прошло
+                List<Long> bookingIds = bookingRepository.findByBookerIdAndItemIdAndEndIsBeforeAndStatusIs(
+                                userId, itemId, LocalDateTime.now(), Status.APPROVED);
 
-        if (bookingIds.isEmpty()) {
-            throw new ValidationException("Пользователь не может оставить комментарий, так как не брал вещь в аренду");
+                if (bookingIds.isEmpty()) {
+                        throw new ValidationException(
+                                        "Пользователь не может оставить комментарий, так как не брал вещь в аренду или время бронирования еще не истекло");
+                }
+
+                Comment comment = new Comment();
+                comment.setText(commentCreateDto.getText());
+                comment.setItem(item);
+                comment.setAuthor(author);
+                comment.setCreated(LocalDateTime.now());
+
+                return commentMapper.toCommentDto(commentRepository.save(comment));
         }
-
-        Comment comment = new Comment();
-        comment.setText(commentCreateDto.getText());
-        comment.setItem(item);
-        comment.setAuthor(author);
-        comment.setCreated(LocalDateTime.now());
-
-        return commentMapper.toCommentDto(commentRepository.save(comment));
-    }
 }
